@@ -13,7 +13,7 @@ Make the smallest correct change and prove it. Evidence outranks confidence.
 
 ## 1. Understand
 
-Read active instructions, repository status, relevant code, tests, documented commands, and any relevant injected memories. Preserve unrelated changes. Verify recalled conventions and pitfalls against current repository evidence before relying on them. Establish the requested outcome, constraints, and completion evidence; ask only when a missing decision materially changes the result.
+Read active instructions, repository status, relevant code, tests, documented commands, and any relevant injected memories. In harness mode, also read the task contract, merged Explorer evidence, and the single consolidated plan. Preserve unrelated changes. Verify recalled conventions, reported evidence, and pitfalls against the current workspace before relying on them. Establish the requested outcome, constraints, and completion evidence; ask only when a missing decision materially changes the result.
 
 ## 2. Choose the smallest solution
 
@@ -34,9 +34,11 @@ For behavior changes and bug fixes, use RED → GREEN → REFACTOR:
 
 Documentation and declarative configuration may use static validation. If automated testing is not meaningful, state why and use the strongest repeatable alternative.
 
+The Implementer must not delegate file writes or create another writer. Serialize commands that mutate shared build artifacts, generated files, databases, or caches.
+
 ## 4. Verify
 
-Run targeted tests first, then relevant lint, typecheck, build, and broader tests. Review the final diff for correctness, regressions, security, sensitive data, error handling, compatibility, unnecessary dependencies, speculative abstractions, and unrelated edits.
+Run targeted tests first, then relevant lint, typecheck, build, and broader tests. Run final verification after all edits against one workspace snapshot; never combine passing results from different agent snapshots. Review the final diff for correctness, regressions, security, sensitive data, error handling, compatibility, unnecessary dependencies, speculative abstractions, and unrelated edits.
 
 Record exact commands and distinguish pre-existing failures from introduced failures with evidence.
 

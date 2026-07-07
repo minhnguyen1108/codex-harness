@@ -17,16 +17,31 @@ Prompt
 - `harness`: nguyên nhân chưa rõ, nhiều module, public API, schema/migration, security, concurrency hoặc dependency mới.
 - Có thể ép route bằng tiền tố `direct:` hoặc `harness:`.
 
+Nhánh `harness` dùng fan-out/fan-in để tăng tốc:
+
+```text
+Goal / Constraints / Done When
+  → tách 2–3 workstream read-only độc lập
+  → Explorer chạy song song
+  → join evidence
+  → một Planner tổng hợp
+  → một Implementer sửa file
+  → 1–2 Reviewer read-only theo risk
+  → một verdict cuối
+```
+
+Task nhỏ không tạo subagent. Workstream có dependency hoặc dùng chung mutable state sẽ chạy tuần tự.
+
 Trong bước thực thi, Ponytail ưu tiên giải pháp nhỏ nhất đúng yêu cầu; TDD chạy theo RED → GREEN → REFACTOR khi thay đổi hành vi. Context7 và CodeGraph chỉ được gọi khi cần.
 
 ## Thành phần
 
 - `harness-router`: chọn workflow một lần trước khi chỉnh sửa.
 - `coding-workflow`: triển khai, kiểm thử, review diff và báo bằng chứng.
-- `harness_explorer`: khám phá repository ở chế độ read-only.
-- `harness_planner`: lập kế hoạch ở chế độ read-only.
+- `harness_explorer`: có thể chạy tối đa ba instance read-only với scope độc lập.
+- `harness_planner`: một instance tổng hợp toàn bộ evidence thành một plan.
 - `harness_implementer`: writer duy nhất.
-- `harness_reviewer`: review độc lập ở chế độ read-only.
+- `harness_reviewer`: một hoặc hai instance read-only theo review focus; coordinator hợp nhất một verdict.
 - Ponytail: sáu skill và lifecycle hooks, vendored từ phiên bản được ghi trong `third_party/ponytail/SOURCE.md`.
 - Context7 MCP: tài liệu library/API hiện hành.
 - CodeGraph MCP: phân tích code graph khi repository đã có `.codegraph/`.
@@ -126,7 +141,10 @@ Mở thread mới sau khi cập nhật để Codex nạp lại skills, hooks và
 - Không tự thêm dependency hoặc chạy `codegraph init`.
 - Context7 chỉ nhận tên library, version và câu hỏi API công khai.
 - Chỉ Implementer được sửa file trong harness workflow.
-- Reviewer cho phép tối đa hai vòng sửa-review trước khi báo blocker.
+- Chỉ top-level coordinator được tạo subagent; specialist không được nested-spawn.
+- Tối đa ba child agent chạy đồng thời và không vượt capacity hiện có.
+- Test/build ghi shared artifacts phải chạy tuần tự trên một workspace snapshot.
+- Toàn pipeline có tối đa hai vòng sửa-review trước khi báo blocker.
 
 ## Giấy phép
 

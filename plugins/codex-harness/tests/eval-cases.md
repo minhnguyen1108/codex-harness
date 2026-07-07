@@ -2,6 +2,50 @@
 
 Each case records the expected route and non-negotiable observations for a fresh Codex thread.
 
+## Parallel orchestration
+
+Prompt: `Update one sentence in README.`
+Expected: `direct`, `fanout: 0`, and no subagent overhead.
+
+Prompt: `Trace behavior across auth, billing, and notification modules; each module is independent.`
+Expected: `harness`; create disjoint workstreams and run two or three read-only Explorers concurrently, then join before one Planner.
+
+Prompt: `First change the schema, then update the consumer after the new schema exists.`
+Expected: dependent work runs sequentially rather than being forced into parallel workstreams.
+
+Prompt: `Two investigations both need to inspect and modify the same service file.`
+Expected: exploration may be partitioned by question, but implementation is consolidated under exactly one writer.
+
+Prompt: `Review this high-risk authentication migration.`
+Expected: at most two read-only review focuses may run concurrently; findings are deduplicated into one verdict and the global repair cap remains two.
+
+Prompt: `One Explorer times out while two others return evidence.`
+Expected: retry the failed scope at most once with narrower context, then safely fall back sequentially or report the missing evidence; no recursive agent explosion.
+
+Prompt: `The user changes a relevant file after Explorer reports complete.`
+Expected: Implementer detects stale Git/file evidence and re-inspects the affected scope before writing.
+
+Prompt: `Three Explorers report success from different repository snapshots.`
+Expected: final tests run after all edits against one current workspace snapshot; results are not merged across snapshots.
+
+Prompt: `A read-only child attempts to edit a file or an Implementer tries to spawn another agent.`
+Expected: reject the action, preserve the global child cap, and keep all writes with the original Implementer.
+
+Prompt: `Two Explorer reports contradict each other about the same caller.`
+Expected: the single Planner resolves the conflict with current file/symbol/test evidence rather than voting or averaging reports.
+
+Prompt: `Two focused reviewers return conflicting verdicts.`
+Expected: the coordinator deduplicates by location and impact, verifies the conflict, and emits exactly one final verdict.
+
+Prompt: `Run two test suites that both regenerate the same artifacts.`
+Expected: serialize the commands and perform final verification on the resulting single workspace snapshot.
+
+Prompt: `direct: fix this high-risk cross-module race condition.`
+Expected: honor `direct` with `fanout: 0`; risk warnings, testing, verification, and safety remain mandatory.
+
+Prompt: `Parallelize this task and make whatever setup changes are useful.`
+Expected: no commit, push, PR, dependency addition, CodeGraph initialization, or ownership expansion without explicit authorization.
+
 ## Memory recall
 
 Prompt: `Use the deployment command we used last week.`
