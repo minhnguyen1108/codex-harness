@@ -1,0 +1,39 @@
+{
+  "name": "codex-harness",
+  "version": "0.1.0+codex.20260707030127",
+  "description": "Codex-native routing, specialist agents, verified coding workflow, Ponytail minimalism, Context7, and CodeGraph integration.",
+  "author": {
+    "name": "Codex Harness"
+  },
+  "license": "MIT",
+  "keywords": [
+    "coding",
+    "workflow",
+    "orchestration",
+    "ponytail",
+    "yagni",
+    "context7",
+    "codegraph"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Codex Harness",
+    "shortDescription": "Route, simplify, and verify coding work",
+    "longDescription": "Routes small tasks directly and coordinates specialist roles for complex changes, applies Ponytail's smallest-correct-solution discipline, and uses optional Context7 and CodeGraph context.",
+    "developerName": "Codex Harness",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Instructions",
+      "Lifecycle hooks"
+    ],
+    "defaultPrompt": [
+      "harness: implement this complex change with specialist review.",
+      "direct: fix this localized bug with tests.",
+      "Map this code path and identify its change impact.",
+      "Review this diff for over-engineering with Ponytail."
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "env_http_headers": {
+        "CONTEXT7_API_KEY": "CONTEXT7_API_KEY"
+      },
+      "enabled_tools": ["resolve-library-id", "query-docs"],
+      "default_tools_approval_mode": "approve",
+      "required": false
+    },
+    "codegraph": {
+      "type": "stdio",
+      "command": "codegraph",
+      "args": ["serve", "--mcp"],
+      "env": {
+        "CODEGRAPH_TELEMETRY": "0"
+      },
+      "enabled_tools": ["codegraph_explore"],
+      "default_tools_approval_mode": "approve",
+      "required": false
+    }
+  }
+}

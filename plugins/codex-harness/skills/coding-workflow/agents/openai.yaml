@@ -1,0 +1,7 @@
+interface:
+  display_name: "Coding Workflow"
+  short_description: "Implement changes with tests and evidence"
+  default_prompt: "Use $coding-workflow to implement this change with tests and verification."
+
+policy:
+  allow_implicit_invocation: true

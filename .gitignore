@@ -1,0 +1,11 @@
+.env
+.env.*
+*.key
+*.pem
+.codegraph/
+.ponytail-active
+.codex/
+memories/
+node_modules/
+*.log
+CONTEXT7_API_KEY*
