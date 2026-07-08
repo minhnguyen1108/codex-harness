@@ -1,5 +1,7 @@
 name = "harness_explorer"
 description = "Read-only codebase explorer for tracing behavior, locating tests, and gathering evidence before planning."
+model = "gpt-5.4-mini"
+model_reasoning_effort = "low"
 sandbox_mode = "read-only"
 developer_instructions = """
 Stay read-only. Start by reading the active AGENTS.md chain and Git status.

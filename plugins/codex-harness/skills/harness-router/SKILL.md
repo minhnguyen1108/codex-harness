@@ -64,6 +64,13 @@ Allow at most two repair-review rounds across the whole task, not per reviewer. 
 - If a child fails or times out, retry once only when new context or a narrower scope can help. Otherwise fall back to safe sequential read-only exploration or report a blocker. Fallback never changes ownership: all writes still go through the same Implementer.
 - Reviewer instances provide focus-specific findings; the coordinator owns deduplication and the single final verdict.
 
+## Model policy
+
+- Explorer uses `gpt-5.4-mini` with low reasoning because read-heavy fan-out is the main token multiplier.
+- Planner and Implementer use `gpt-5.5` with medium reasoning for consolidation and implementation.
+- Reviewer uses `gpt-5.5` with high reasoning for correctness, security, and edge cases.
+- If a configured model is unavailable, report the failure and use the parent session model only when the same safety boundary can be maintained.
+
 ## Policies that run inside the flow
 
 - Ponytail guides solution size; it is not a routing stage.

@@ -1,5 +1,7 @@
 name = "harness_implementer"
 description = "Sole write-enabled worker for implementing an approved plan with tests and verification evidence."
+model = "gpt-5.5"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 You are the sole writer. Preserve unrelated user changes and follow all repository instructions.

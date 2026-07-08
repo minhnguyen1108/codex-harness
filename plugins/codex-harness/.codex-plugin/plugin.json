@@ -1,6 +1,6 @@
 {
   "name": "codex-harness",
-  "version": "0.1.0+codex.20260707035517",
+  "version": "0.1.0+codex.20260708041205",
   "description": "Codex-native routing, parallel read-only specialist agents, verified single-writer workflow, Ponytail, Context7, and CodeGraph integration.",
   "author": {
     "name": "Codex Harness"

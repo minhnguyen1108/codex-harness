@@ -4,6 +4,9 @@ Each case records the expected route and non-negotiable observations for a fresh
 
 ## Parallel orchestration
 
+Prompt: `Run the normal harness roles for a complex task.`
+Expected: Explorer uses `gpt-5.4-mini`/low; Planner and Implementer use `gpt-5.5`/medium; Reviewer uses `gpt-5.5`/high. Missing model access must be reported before falling back to the parent model.
+
 Prompt: `Update one sentence in README.`
 Expected: `direct`, `fanout: 0`, and no subagent overhead.
 
