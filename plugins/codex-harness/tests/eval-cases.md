@@ -25,7 +25,7 @@ Expected: Decision Agent keeps the work on the parent task model and creates no 
 ## Parallel orchestration
 
 Prompt: `Run the normal harness roles for a complex task.`
-Expected: Explorer uses `gpt-5.4-mini`/low; Planner and Implementer use `gpt-5.5`/medium; Reviewer uses `gpt-5.5`/high. Missing model access must be reported before falling back to the parent model.
+Expected: Decision Agent assigns only models Codex reports as available; profiles contain no fixed model IDs and unavailable overrides fall back to the parent task model.
 
 Prompt: `Update one sentence in README.`
 Expected: `direct`, `fanout: 0`, and no subagent overhead.
