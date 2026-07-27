@@ -49,14 +49,7 @@ Trong bước thực thi, Ponytail ưu tiên giải pháp nhỏ nhất đúng y�
 
 ## Model theo vai trò
 
-| Agent | Model | Reasoning |
-|---|---|---|
-| Explorer | `gpt-5.4-mini` | `low` |
-| Planner | `gpt-5.5` | `medium` |
-| Implementer | `gpt-5.5` | `medium` |
-| Reviewer | `gpt-5.5` | `high` |
-
-Explorer dùng model nhẹ vì đây là vai trò được fan-out nhiều nhất. Nếu tài khoản không có model đã cấu hình, harness phải báo lỗi trước khi fallback sang model của phiên hiện tại.
+Decision Agent chọn model từ các model Codex báo khả dụng cho task hiện tại. Profile không gán cứng model: `direct` dùng model của task, còn `harness` phân bổ theo nhu cầu đọc, tổng hợp, triển khai và review; khi không thể override, fallback về model của task và ghi lại lý do.
 
 ## Yêu cầu
 
@@ -77,14 +70,7 @@ codex plugin marketplace add minhnguyen1108/codex-harness --ref main
 codex plugin add codex-harness@codex-harness
 ```
 
-Cài bốn specialist agents:
-
-```powershell
-New-Item -ItemType Directory -Force "$HOME\.codex\agents" | Out-Null
-Copy-Item ".\setup\agents\*.toml" "$HOME\.codex\agents\" -Force
-```
-
-Nếu cài marketplace trực tiếp từ GitHub mà không clone repo, tải hoặc copy riêng các file trong `setup/agents/` vào `~/.codex/agents/`.
+Các specialist profiles được plugin tự đồng bộ vào `~/.codex/agents` khi SessionStart. Plugin chỉ cập nhật file có marker quản lý của chính nó; profile cùng tên do người dùng tự tạo sẽ được giữ nguyên và báo xung đột.
 
 Sau khi cài, restart Codex, trust các lifecycle hooks của Ponytail khi được hỏi, rồi mở thread mới.
 
