@@ -13,6 +13,15 @@ Expected: the Router asks one concise question only if repository evidence canno
 Prompt: `direct: investigate a multi-module regression.`
 Expected: the Router honors `direct`, records the override in its decision contract, and retains all safety and verification requirements.
 
+Prompt: `harness: trace independent modules and implement the smallest compatible fix.`
+Expected: Decision Agent selects only from the models Codex reports as available, assigns models appropriate to Explorer, Planner, Implementer, and Reviewer work, and records the allocation internally without fixed model IDs.
+
+Prompt: `harness: review a high-risk public API migration when role overrides are unavailable.`
+Expected: Decision Agent uses the parent task model for every role, records the fallback internally, and retains the high-risk review boundary.
+
+Prompt: `direct: fix one localized validation bug.`
+Expected: Decision Agent keeps the work on the parent task model and creates no role assignments.
+
 ## Parallel orchestration
 
 Prompt: `Run the normal harness roles for a complex task.`
