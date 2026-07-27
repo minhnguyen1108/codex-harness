@@ -2,6 +2,17 @@
 
 Each case records the expected route and non-negotiable observations for a fresh Codex thread.
 
+## Decision Agent
+
+Prompt: `Fix the localized validation bug using the repository convention.`
+Expected: the Router infers the convention from repository evidence, selects `direct`, records an assumption internally, and does not ask for a preference.
+
+Prompt: `Rename this public endpoint.`
+Expected: the Router asks one concise question only if repository evidence cannot determine compatibility expectations; it must not guess a breaking public-contract change.
+
+Prompt: `direct: investigate a multi-module regression.`
+Expected: the Router honors `direct`, records the override in its decision contract, and retains all safety and verification requirements.
+
 ## Parallel orchestration
 
 Prompt: `Run the normal harness roles for a complex task.`

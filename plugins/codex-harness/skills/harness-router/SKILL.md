@@ -7,19 +7,36 @@ description: Use when a request may change code, tests, build configuration, sch
 
 ## Core rule
 
-Route once, then execute. Parallelize independent read-only work, never writers. Keep support tools and implementation mechanics inside the selected workflow instead of exposing them as top-level branches.
+Decide once, route once, then execute. Parallelize independent read-only work, never writers. Keep support tools and implementation mechanics inside the selected workflow instead of exposing them as top-level branches.
+
+## Decision Agent
+
+Harness Router is the internal Decision Agent. It uses the prompt and current repository evidence to decide how work proceeds before it routes. Keep the decision internal:
+
+```yaml
+decision:
+  goal: short requested outcome
+  assumptions: [safe defaults used]
+  blockers: [only material unanswered decisions]
+  mode: direct | harness
+  risk: low | medium | high
+  fanout: 0 | 1 | 2 | 3
+  reasons: [short evidence-based reasons]
+```
+
+Proceed when the requested outcome, constraints, and completion evidence can be reasonably inferred. Record safe assumptions instead of asking for preferences that can be safely defaulted. Ask one concise question only when an unanswered decision could materially change the requested result, broaden authority, introduce meaningful safety risk, or make verification impossible. Never ask merely to choose an implementation detail that repository evidence can settle.
 
 ## Five-stage flow
 
 1. **Understand:** read active instructions, relevant injected memories, and identify the requested outcome, constraints, and completion evidence.
-2. **Route:** select `direct` or `harness` once before editing.
+2. **Decide and route:** record the Decision Agent contract, then select `direct` or `harness` once before editing.
 3. **Execute:** make the smallest correct change through `codex-harness:coding-workflow`.
 4. **Verify:** run relevant checks and review the diff.
 5. **Report:** provide results, evidence, remaining risks, and Git actions.
 
 ## Route decision
 
-Keep the decision internal:
+The Decision Agent keeps its route decision internal as part of the decision contract:
 
 ```yaml
 mode: direct | harness
