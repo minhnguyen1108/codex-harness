@@ -7,7 +7,7 @@ const marker = '# managed-by: codex-harness';
 const sourceDir = path.join(__dirname, '..', 'agents');
 const codexHome = process.env.CODEX_HOME || path.join(os.homedir(), '.codex');
 const targetDir = path.join(codexHome, 'agents');
-const warn = (message) => process.stdout.write(JSON.stringify({ systemMessage: message }));
+const warnings = [];
 
 try {
   fs.mkdirSync(targetDir, { recursive: true });
@@ -15,7 +15,7 @@ try {
     const source = fs.readFileSync(path.join(sourceDir, name), 'utf8');
     const target = path.join(targetDir, name);
     if (fs.existsSync(target) && !fs.readFileSync(target, 'utf8').startsWith(marker)) {
-      warn(`CODEX_HARNESS_PROFILE_CONFLICT:${name}`);
+      warnings.push(`CODEX_HARNESS_PROFILE_CONFLICT:${name}`);
       continue;
     }
     const temporary = `${target}.tmp-${process.pid}`;
@@ -23,5 +23,10 @@ try {
     fs.renameSync(temporary, target);
   }
 } catch (error) {
-  warn(`CODEX_HARNESS_PROFILE_SYNC_FAILED:${error.message}`);
+  warnings.push(`CODEX_HARNESS_PROFILE_SYNC_FAILED:${error.message}`);
+  process.exitCode = 1;
+}
+
+if (warnings.length) {
+  process.stdout.write(JSON.stringify({ systemMessage: warnings.join(',') }));
 }

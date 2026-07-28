@@ -1,6 +1,8 @@
 {
   "name": "codex-harness",
-  "version": "0.1.0+codex.20260708041205",
+  "version": "0.2.0",
+  "homepage": "https://github.com/minhnguyen1108/codex-harness",
+  "repository": "https://github.com/minhnguyen1108/codex-harness",
   "description": "Autonomous Codex-native decision routing with safe assumptions, parallel read-only specialist agents, verified single-writer workflow, Ponytail, Context7, and CodeGraph integration.",
   "author": {
     "name": "Codex Harness"
@@ -21,7 +23,7 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Codex Harness",
-    "shortDescription": "Decide, route, and verify coding work",
+    "shortDescription": "Route and verify coding work",
     "longDescription": "Autonomously decides a route using safe assumptions, asks only for material unresolved decisions, routes small tasks directly, fans out independent read-only analysis and review for complex changes, keeps one writer, applies Ponytail, and uses optional Context7 and CodeGraph context.",
     "developerName": "Codex Harness",
     "category": "Productivity",
@@ -32,10 +34,9 @@
       "Lifecycle hooks"
     ],
     "defaultPrompt": [
-      "Decide the safest route for this change and proceed with safe assumptions.",
-      "direct: fix this localized bug with tests.",
-      "Map this code path and identify its change impact.",
-      "Review this diff for over-engineering with Ponytail."
+      "Decide the safest route for this coding change.",
+      "Trace this code path and identify change impact.",
+      "Review this diff for over-engineering."
     ]
   }
 }

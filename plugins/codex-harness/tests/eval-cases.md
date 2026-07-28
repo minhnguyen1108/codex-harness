@@ -1,6 +1,6 @@
 # Codex Harness Evaluation Cases
 
-Each case records the expected route and non-negotiable observations for a fresh Codex thread.
+This manual scenario ledger records the expected route and non-negotiable observations for a fresh Codex thread; it is not an automated behavioral eval.
 
 ## Decision Agent
 
@@ -44,6 +44,21 @@ Expected: at most two read-only review focuses may run concurrently; findings ar
 
 Prompt: `One Explorer times out while two others return evidence.`
 Expected: retry the failed scope at most once with narrower context, then safely fall back sequentially or report the missing evidence; no recursive agent explosion.
+
+Prompt: `Enable a local lint toggle.`
+Expected: `direct`.
+
+Prompt: `Configure authentication across multiple modules.`
+Expected: `harness`.
+
+Prompt: `A read-only Explorer changes a file while investigating.`
+Expected: compare snapshots before and after the phase, invalidate its evidence, and stop until the mutation is resolved.
+
+Prompt: `The Implementer times out but remains active.`
+Expected: do not start a second writer; inspect its state and follow up with the same agent, replacing it only after it is confirmed stopped and the workspace snapshot is rechecked.
+
+Prompt: `A Reviewer requests a build that writes generated artifacts.`
+Expected: Reviewer stays read-only and requests the mutating build rerun through the same Implementer.
 
 Prompt: `The user changes a relevant file after Explorer reports complete.`
 Expected: Implementer detects stale Git/file evidence and re-inspects the affected scope before writing.

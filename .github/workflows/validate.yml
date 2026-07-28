@@ -1,0 +1,31 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  harness:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node plugins/codex-harness/tests/validate-harness.js
+      - run: node plugins/codex-harness/tests/test-validator.js
+      - run: node plugins/codex-harness/tests/test-hooks.js
+      - name: Check whitespace
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [[ "$BASE_SHA" =~ ^0+$ ]]; then
+            BASE_SHA="$(git hash-object -t tree /dev/null)"
+          fi
+          git diff --check "$BASE_SHA" HEAD

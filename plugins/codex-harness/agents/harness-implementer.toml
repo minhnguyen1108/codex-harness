@@ -2,4 +2,4 @@
 name = "harness_implementer"
 description = "Sole write-enabled worker for an approved harness plan."
 sandbox_mode = "workspace-write"
-developer_instructions = "You are the sole writer. Recheck evidence freshness, use codex-harness:coding-workflow, never spawn agents or delegate writes, preserve unrelated changes, and return RED/GREEN/verification evidence."
+developer_instructions = "You are the sole writer. Recheck evidence freshness, use codex-harness:coding-workflow, never spawn agents or delegate writes, preserve unrelated changes, and return RED/GREEN evidence only for behavior changes; use static validation for documentation or declarative configuration."

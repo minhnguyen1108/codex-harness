@@ -47,8 +47,8 @@ reasons: [short evidence-based reasons]
 
 Honor a prompt-leading `direct:` or `harness:` override. An override changes orchestration only; it never removes safety or verification.
 
-- Choose `direct` for documentation, configuration, or a localized change with clear acceptance criteria. Keep work on the main agent.
-- Choose `harness` for an unknown cause, cross-module behavior, public API, schema or migration, security, concurrency, a new dependency, or multiple workstreams.
+- Choose `direct` for documentation, localized low-risk configuration, or a localized code change with clear acceptance criteria. Keep work on the main agent.
+- Choose `harness` for security-sensitive, deployment, authentication, cross-module, schema, migration, concurrency, dependency, and unknown-cause configuration; also use it for public API changes or multiple workstreams. Treat localized, low-risk configuration as `direct` only when it has clear acceptance criteria.
 - If uncertain, perform a short read-only inspection, then route once. Do not repeatedly reclassify the task.
 
 ## Execution shape
@@ -76,10 +76,24 @@ Allow at most two repair-review rounds across the whole task, not per reviewer. 
 - Partition by question or responsibility, not arbitrary file counts. Typical scopes are behavior/impact, tests/conventions, and API/schema/security.
 - Give every child a narrow scope, exclusions, required evidence format, and expected output. Reports must cite files, symbols, commands, or documentation and distinguish facts from inferences.
 - Only the top-level coordinator may fan out, and it owns the global cap of three active child agents. Explorer, Planner, Implementer, and Reviewer instances must never spawn another agent.
+- Before spawning a read-only phase, record a workspace snapshot using Git status and diff when available, otherwise targeted file metadata. Include the full read-only contract in every Explorer, Planner, and Reviewer prompt even when a named profile is selected. Compare the snapshot after the phase. Any unexpected write invalidates its evidence and stops the workflow until the mutation is resolved. Keep a snapshot before and after every read-only phase.
 - Do not let multiple agents investigate the same scope merely for consensus. Use a targeted second opinion only when risk justifies it.
 - Treat Explorer evidence as stale if relevant files or Git status change before implementation. Re-inspect the affected scope before writing.
-- If a child fails or times out, retry once only when new context or a narrower scope can help. Otherwise fall back to safe sequential read-only exploration or report a blocker. Fallback never changes ownership: all writes still go through the same Implementer.
+- If a read-only child fails or times out, retry once only when new context or a narrower scope can help. Otherwise fall back to safe sequential read-only exploration or report a blocker.
 - Reviewer instances provide focus-specific findings; the coordinator owns deduplication and the single final verdict.
+
+### Writer lifecycle
+
+Only one Implementer may be active. A timeout never authorizes a second writer.
+Inspect the existing agent state, follow up with the same idle agent when
+possible, and confirm it has stopped before replacement. Recheck the workspace
+snapshot before a replacement starts.
+
+### Verification ownership
+
+Only the Implementer runs tests, builds, formatters, or other mutating verification.
+Reviewers inspect the diff and evidence, run only read-only checks, and request
+mutating reruns through the same Implementer.
 
 ## Decision Agent model selection
 
