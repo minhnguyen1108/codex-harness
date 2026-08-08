@@ -4,22 +4,29 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  harness:
+  validate:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
       - run: node plugins/codex-harness/tests/validate-harness.js
       - run: node plugins/codex-harness/tests/test-validator.js
       - run: node plugins/codex-harness/tests/test-hooks.js
+      - shell: pwsh
+        run: Get-ChildItem plugins/codex-harness/hooks/*.js | ForEach-Object { node --check $_.FullName }
+      - shell: pwsh
+        run: Get-ChildItem plugins/codex-harness/tests/*.js | ForEach-Object { node --check $_.FullName }
       - name: Check whitespace
         shell: bash
         env:

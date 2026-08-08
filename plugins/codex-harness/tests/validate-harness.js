@@ -7,6 +7,185 @@ const readPlugin = (file) => fs.readFileSync(path.join(pluginRoot, file), 'utf8'
 const readJson = (file) => JSON.parse(readPlugin(file));
 const fail = (message) => { throw new Error(message); };
 const assert = (condition, message) => { if (!condition) fail(message); };
+const publicDocFiles = [
+  'README.md',
+  'SECURITY.md',
+  'CONTRIBUTING.md',
+  'SUPPORT.md',
+  'CODE_OF_CONDUCT.md',
+  'CHANGELOG.md',
+  'docs/security/threat-model.md',
+  'docs/validation/claims-to-tests.md',
+  'docs/validation/demo.md',
+  'docs/superpowers/specs/2026-08-08-oss-readiness-design.md',
+  'docs/superpowers/plans/2026-08-08-oss-readiness.md',
+];
+const claimBearingPublicDocs = [
+  'README.md',
+  'SECURITY.md',
+  'CONTRIBUTING.md',
+  'SUPPORT.md',
+  'CODE_OF_CONDUCT.md',
+  'CHANGELOG.md',
+  'docs/security/threat-model.md',
+  'docs/validation/demo.md',
+];
+const unsupportedClaimPattern = /\btrusted by\b|\bcustomer logos\b|\bproduction ready\b|\bsecurity audit\b|\bbenchmark (?:win|wins|superiority)\b|\bOpenAI endorsed\b/i;
+function assertMarkdownLink(markdown, label, target) {
+  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedTarget = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  assert(
+    new RegExp(`\\[${escapedLabel}\\]\\(${escapedTarget}\\)`).test(markdown),
+    `README markdown link missing: ${label} -> ${target}`,
+  );
+}
+function validateNoPersonalPaths() {
+  for (const file of publicDocFiles) {
+    const fullPath = path.join(repoRoot, file);
+    if (!fs.existsSync(fullPath)) continue;
+    const text = fs.readFileSync(fullPath, 'utf8');
+    assert(
+      !/C:\\Users\\[^\\\r\n]+|\.cache[\\/]+codex-runtimes|codex-runtimes/i.test(text),
+      `Personal path found in public docs: ${file}`,
+    );
+  }
+}
+function validateUnsupportedClaims() {
+  for (const file of claimBearingPublicDocs) {
+    const fullPath = path.join(repoRoot, file);
+    if (!fs.existsSync(fullPath)) continue;
+    assert(!unsupportedClaimPattern.test(fs.readFileSync(fullPath, 'utf8')), `Unsupported public claim found in ${file}.`);
+  }
+}
+function validatePublicDocs() {
+  const readmePath = path.join(repoRoot, 'README.md');
+  if (!fs.existsSync(readmePath)) return;
+  const requiredCommunityFiles = [
+    'SECURITY.md',
+    'CONTRIBUTING.md',
+    'SUPPORT.md',
+    'CODE_OF_CONDUCT.md',
+    'CHANGELOG.md',
+    '.github/CODEOWNERS',
+  ];
+  for (const file of requiredCommunityFiles) {
+    assert(fs.existsSync(path.join(repoRoot, file)), `Required public file missing: ${file}`);
+  }
+  const readme = fs.readFileSync(readmePath, 'utf8');
+  assertMarkdownLink(readme, 'SECURITY.md', 'SECURITY.md');
+  assertMarkdownLink(readme, 'CONTRIBUTING.md', 'CONTRIBUTING.md');
+  assertMarkdownLink(readme, 'SUPPORT.md', 'SUPPORT.md');
+  assertMarkdownLink(readme, 'CODE_OF_CONDUCT.md', 'CODE_OF_CONDUCT.md');
+  assertMarkdownLink(readme, 'CHANGELOG.md', 'CHANGELOG.md');
+  assertMarkdownLink(readme, 'docs/security/threat-model.md', 'docs/security/threat-model.md');
+  assertMarkdownLink(readme, 'docs/validation/claims-to-tests.md', 'docs/validation/claims-to-tests.md');
+  assertMarkdownLink(readme, 'docs/validation/demo.md', 'docs/validation/demo.md');
+  assertMarkdownLink(readme, 'LICENSE', 'LICENSE');
+  assertMarkdownLink(readme, 'Ponytail attribution', 'plugins/codex-harness/third_party/ponytail/SOURCE.md');
+  const owners = fs.readFileSync(path.join(repoRoot, '.github/CODEOWNERS'), 'utf8');
+  for (const line of [
+    '* @minhnguyen1108',
+    '/plugins/codex-harness/ @minhnguyen1108',
+    '/.github/workflows/validate.yml @minhnguyen1108',
+  ]) {
+    assert(owners.includes(line), `CODEOWNERS entry missing: ${line}`);
+  }
+  assert(!/@(?:owner|maintainer|team)\b|<[^>]+>/.test(owners), 'CODEOWNERS contains non-real owner text.');
+  const security = fs.readFileSync(path.join(repoRoot, 'SECURITY.md'), 'utf8');
+  assert(
+    security.includes('https://github.com/minhnguyen1108/codex-harness/security/advisories/new'),
+    'Security advisory link missing.',
+  );
+  assert(security.includes('minimal redacted issue'), 'Security fallback issue guidance missing.');
+  const support = fs.readFileSync(path.join(repoRoot, 'SUPPORT.md'), 'utf8');
+  assert(/\[SECURITY\.md\]\(SECURITY\.md\)/.test(support), 'SUPPORT.md security link missing.');
+}
+function readRepoFile(file) {
+  const fullPath = path.join(repoRoot, file);
+  assert(fs.existsSync(fullPath), `Required public file missing: ${file}`);
+  return fs.readFileSync(fullPath, 'utf8');
+}
+function validateThreatModel() {
+  const threat = readRepoFile('docs/security/threat-model.md');
+  for (const heading of ['Assets', 'Trust boundaries', 'Actors', 'Entry points', 'Risks', 'Mitigations', 'Residual risks']) {
+    assert(threat.includes(`## ${heading}`), `Threat model section missing: ${heading}`);
+  }
+  for (const term of [
+    'lifecycle hooks',
+    'plugin metadata',
+    'Context7',
+    'optional MCP servers',
+    'managed agent profile sync',
+    'local filesystem writes',
+    'user-provided prompts',
+    'CodeGraph is never initialized automatically',
+  ]) {
+    assert(threat.includes(term), `Threat model coverage missing: ${term}`);
+  }
+}
+function validateClaimsToTests() {
+  const claims = readRepoFile('docs/validation/claims-to-tests.md');
+  for (const status of ['automated', 'static', 'manual', 'not claimed']) {
+    assert(claims.includes(status), `Claims mapping status missing: ${status}`);
+  }
+  for (const item of ['external adoption', 'production security audit', 'performance benchmark', 'public-directory acceptance']) {
+    assert(claims.includes(item), `Not-claimed item missing: ${item}`);
+  }
+  for (const item of ['CI badge', 'Ponytail guidance', 'lifecycle hooks require Node.js', '## Final audit']) {
+    assert(claims.includes(item), `Final claims audit missing: ${item}`);
+  }
+  for (const category of [
+    'project not publicly released',
+    'routing categories',
+    'read-only roles and sole Implementer',
+    'Ponytail guidance',
+    'optional MCP and CodeGraph opt-in',
+    'lifecycle hooks and local state writes',
+    'managed profile sync and conflict preservation',
+    'secret handling',
+    'quickstart tag caveat',
+    'validation and CI',
+    'demo',
+    'license and attribution',
+  ]) {
+    assert(claims.includes(category), `Claims category missing: ${category}`);
+  }
+}
+function validateDemo() {
+  const demo = readRepoFile('docs/validation/demo.md');
+  for (const text of ['Prerequisites', 'Commands', 'Expected output', 'Cleanup', 'without credentials', 'without network services']) {
+    assert(demo.includes(text), `Demo evidence missing: ${text}`);
+  }
+}
+function validateWorkflow() {
+  const workflow = readRepoFile('.github/workflows/validate.yml');
+  for (const text of [
+    'permissions:',
+    'contents: read',
+    'push:',
+    'pull_request:',
+    'ubuntu-latest',
+    'windows-latest',
+    'node-version: 20',
+    'plugins/codex-harness/tests/validate-harness.js',
+    'plugins/codex-harness/tests/test-validator.js',
+    'plugins/codex-harness/tests/test-hooks.js',
+    'node --check',
+    'actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4',
+    'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4',
+    'fetch-depth: 0',
+    'BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}',
+    'git hash-object -t tree /dev/null',
+    'git diff --check "$BASE_SHA" HEAD',
+  ]) {
+    assert(workflow.includes(text), `Workflow contract missing: ${text}`);
+  }
+  assert(!/^\s*-\s*run:\s*git diff --check\s*$/m.test(workflow), 'Workflow uses bare git diff --check.');
+  assert(
+    !/\bcontents:\s*write\b|\bpackages:\s*write\b|\bpull-requests:\s*write\b|upload-artifact|npm\s+(?:install|ci|i)\b|pnpm\s+(?:install|i)\b|yarn\s+(?:install|add)\b|secrets\.|context7|codegraph/i.test(workflow),
+    'Workflow contains forbidden CI behavior.',
+  );
+}
 const manifest = readJson('.codex-plugin/plugin.json');
 const mcp = readJson('.mcp.json');
 const prompts = [
@@ -130,6 +309,15 @@ if (fs.existsSync(readmePath)) {
   ]) {
     assert(readme.includes(text), `README release guidance missing: ${text}`);
   }
+}
+validatePublicDocs();
+validateNoPersonalPaths();
+validateUnsupportedClaims();
+if (fs.existsSync(readmePath)) {
+  validateThreatModel();
+  validateClaimsToTests();
+  validateDemo();
+  validateWorkflow();
 }
 for (const [file, text] of activeText) {
   assert(!/gpt-\d/i.test(text), `Fixed model ID remains: ${file}`);
